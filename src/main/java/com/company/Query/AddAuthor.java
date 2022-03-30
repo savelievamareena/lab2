@@ -9,16 +9,17 @@ import java.util.Scanner;
 
 public class AddAuthor {
     public static void main(String[] args) {
-        System.out.println("Please enter Author's First Name:");
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter Author's First Name:");
         String firstName = scanner.nextLine();
         System.out.println("Please enter Author's Last Name:");
         String lastName = scanner.nextLine();
 
-        AddAuthor.addAuthor(firstName, lastName);
+        int authorId = AddAuthor.addAuthor(firstName, lastName);
     }
 
-    public static void addAuthor(String firstName, String lastName) {
+    public static int addAuthor(String firstName, String lastName) {
+        int authorId = -1;
         Statement stmt = null;
         try{
 
@@ -28,16 +29,8 @@ public class AddAuthor {
             String query = "INSERT INTO authors (firstName, lastName) VALUES ('" + firstName + "', '" + lastName + "')";
             int result = stmt.executeUpdate(query);
             if(result > 0) {
-                System.out.println();
-
-                String findAuthorIdQuery = "SELECT authorId FROM authors " +
-                        "WHERE firstName = '" + firstName + "' AND lastName = '" + lastName + "' " +
-                        "ORDER BY authorId LIMIT 1";
-
-                ResultSet newAuthorId = stmt.executeQuery(findAuthorIdQuery);
-                if(newAuthorId.next()) {
-                    int authorId = newAuthorId.getInt("authorID");
-
+                authorId = GetAuthorId.getAuthorId(firstName, lastName);
+                if(authorId >= 0) {
                     StringBuilder isbn = new StringBuilder();
                     for(int i = 0; i < 10; i++) {
                         int number = getRandomNumber(0, 9);
@@ -61,6 +54,7 @@ public class AddAuthor {
         } finally {
             JDBC.close();
         }
+        return authorId;
     }
 
     public static int getRandomNumber(int min, int max) {
